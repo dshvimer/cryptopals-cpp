@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdio.h>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -14,11 +15,11 @@ typedef vector<bool> raw_data;
 bytes parse_hex(const string hex_input)
 {
     string padded_input;
-    stringstream hex_reader;
+    //stringstream hex_reader; //Does not work when declared here.
     bytes data;
     unsigned char value;
 
-    //Padded to be easily
+    //Padded to be easily transformed into base64
     int bit_count = hex_input.length() * NIBBLE_SIZE;
     int rmdr = bit_count % BASE64_SIZE;
     switch(rmdr)
@@ -34,27 +35,42 @@ bytes parse_hex(const string hex_input)
     }
     
     for (char& c : padded_input) {
-        cout << c << endl;
-        unsigned char byte;
+        stringstream hex_reader; //Needs to be declared here.
+        int i; //Must be an integer. unsinged char does not work.
         hex_reader << hex << c;
-        hex_reader >> byte;
-        data.push_back(byte);
-    }
-
-    for (int i : data) {
-        cout << i << endl;
+        hex_reader >> i;
+        data.push_back(i);
     }
 
     return data;
 }
 
-string bytes_to_base64(bytes data)
+raw_data bytes_to_raw(bytes data)
 {
-    string out;
-    
+    raw_data raw;
+    int j;
+    for (int c : data) { //cast to int from unsigned char
+        cout << c << endl;
+        for (int i = 0; i < 4; i++) {
+            j = c & 0x8;
+            j >>= 3;
+            c <<= 1;
+            cout << " " << j;
+
+            raw.push_back(j);
+        }
+        cout << endl;
+    }
+
+    for (bool i : raw) {
+        cout << i << endl;
+    }
+
+    return raw;
 }
 
 int main() {
-    bytes data = parse_hex("03F");
+    bytes data = parse_hex("3F");
+    raw_data raw = bytes_to_raw(data);
     return 0;
 }
