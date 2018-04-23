@@ -60,6 +60,17 @@ string base64_padding(string in)
     return padded_input;
 }
 
+data_stream parse_ascii(string input)
+{
+    data_stream data;
+
+    for (char& c : input) {
+        data.push_back((int)c);
+    }
+
+    return data;
+}
+
 data_stream parse_hex(string hex_input)
 {
     stringstream hex_reader;
@@ -125,10 +136,8 @@ data_stream myxor(data_stream input, data_stream key)
 {
     data_stream output;
     int key_len = key.size();
-    cout << key_len << endl;
     for (int i = 0; i < input.size(); i++) {
         output.push_back(input[i] ^ key[i % key_len]);
-        cout << i % key_len << endl;
     }
     return output;
 }
@@ -144,10 +153,9 @@ data_stream myxor(data_stream input, int key)
 }
 
 int main() {
-    string str = base64_padding("49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d");
-    data_stream in = parse_hex(str);
-    binary_stream bin = data_stream_to_binary(in);
-    data_stream out = as_width(bin, 6);
-    cout << encode_base64(out) << endl;
+    data_stream in = parse_ascii("Burning 'em, if you ain't quick and nimble I go crazy when I hear a cymbal");
+    data_stream key = parse_ascii("ICE");
+    data_stream out = myxor(in, key);
+    cout << encode_hex(out) << endl;
     return 0;
 }
